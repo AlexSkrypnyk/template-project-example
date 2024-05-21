@@ -1,0 +1,20 @@
+{
+    "name": "alexskrypnyk/customizer-example-project",
+    "description": "Example of how Customizer could be used in the project",
+    "type": "project",
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "alexskrypnyk/customizer": "^0.1"
+    },
+    "scripts": {
+        "customize": [
+            "AlexSkrypnyk\\Customizer\\CustomizeCommand"
+        ],
+        "post-create-project-cmd": [
+            "@customize"
+        ]
+    }
+}
