@@ -59,7 +59,7 @@ License: MIT
 
 will result in the `composer.json`:
 
-```
+```json
 {
     "name": "acme/my-project",
     "description": "My project",
