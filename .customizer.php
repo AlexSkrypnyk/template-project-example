@@ -177,4 +177,27 @@ class CustomizerConfig {
     $customizer->writeComposerJson($customizer->packageData);
   }
 
+  /**
+   * A callback to process cleanup.
+   *
+   * @param array<string,mixed> $composerjson
+   *   The composer.json file content passed by reference.
+   * @param \AlexSkrypnyk\Customizer\CustomizeCommand $customizer
+   *   The Customizer instance.
+   */
+  public static function cleanup(array &$composerjson, CustomizeCommand $customizer): void {
+    // Here you can remove any sections from the composer.json file that are not
+    // needed for the project before all dependencies are updated.
+    //
+    // You can also additionally process files.
+    //
+    // We are removing the `require-dev` section and the `autoload-dev` section
+    // from the composer.json file used for tests.
+    CustomizeCommand::arrayUnsetDeep($composerjson, ['require-dev', 'composer/composer']);
+    CustomizeCommand::arrayUnsetDeep($composerjson, ['require-dev', 'phpunit/phpunit']);
+    CustomizeCommand::arrayUnsetDeep($composerjson, ['autoload-dev', 'psr-4', 'AlexSkrypnyk\\TemplateProjectExample\\Tests\\']);
+
+    $customizer->fs->remove($customizer->cwd . '/tests');
+  }
+
 }

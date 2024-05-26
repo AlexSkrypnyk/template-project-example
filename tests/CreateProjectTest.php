@@ -36,9 +36,10 @@ class CreateProjectTest extends CustomizerTestCase {
     $this->assertEquals($json['description'], 'Test description');
     $this->assertEquals($json['license'], 'MIT');
 
-    $this->assertArrayNotHasKey('alexskrypnyk/customizer', $json['require-dev']);
+    $this->assertArrayNotHasKey('require-dev', $json);
     $this->assertArrayNotHasKey('config', $json);
     $this->assertFileDoesNotExist($this->customizerFile);
+    $this->assertDirectoryDoesNotExist('tests');
 
     $this->assertComposerLockUpToDate();
   }
