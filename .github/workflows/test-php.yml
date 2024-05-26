@@ -1,0 +1,20 @@
+name: Test PHP
+
+on: [push, pull_request]
+
+jobs:
+  test-php:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Run tests
+        run: ./vendor/bin/phpunit tests
