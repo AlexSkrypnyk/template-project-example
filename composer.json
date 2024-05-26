@@ -6,11 +6,11 @@
         "php": ">=8.2"
     },
     "require-dev": {
-        "alexskrypnyk/customizer": "dev-main",
+        "alexskrypnyk/customizer": "^0.2",
         "composer/composer": "^2.7",
         "phpunit/phpunit": "^11.1"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true,
     "autoload-dev": {
         "psr-4": {
