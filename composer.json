@@ -6,7 +6,7 @@
         "php": ">=8.2"
     },
     "require-dev": {
-        "alexskrypnyk/customizer": "^0.2",
+        "alexskrypnyk/customizer": "^0.3",
         "composer/composer": "^2.7",
         "phpunit/phpunit": "^11.1"
     },

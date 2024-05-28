@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace AlexSkrypnyk\TemplateProjectExample\Tests;
 
+use AlexSkrypnyk\Customizer\CustomizeCommand;
+use AlexSkrypnyk\Customizer\Tests\Dirs;
 use AlexSkrypnyk\Customizer\Tests\Functional\CustomizerTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Test Customizer as a dependency during `composer create-project`.
@@ -13,14 +16,23 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 class CreateProjectTest extends CustomizerTestCase {
 
   #[RunInSeparateProcess]
-  public function testPluginInstall(): void {
+  public function testInstall(): void {
     $this->customizerSetAnswers([
       'testorg/testpackage',
       'Test description',
       'MIT',
       self::TUI_ANSWER_NOTHING,
     ]);
-    $this->composerCreateProject();
+
+    $this->composerCreateProject([
+      '--repository' => [
+        json_encode([
+          'type' => 'path',
+          'url' => $this->dirs->repo,
+          'options' => ['symlink' => TRUE],
+        ]),
+      ],
+    ]);
 
     $this->assertComposerCommandSuccessOutputContains('Welcome to the alexskrypnyk/template-project-example project customizer');
     $this->assertComposerCommandSuccessOutputContains('Project was customized');
@@ -28,6 +40,7 @@ class CreateProjectTest extends CustomizerTestCase {
     $this->assertFileExists('composer.json');
     $this->assertFileExists('composer.lock');
     $this->assertDirectoryExists('vendor');
+
     // Plugin will only clean up after itself if there were questions.
     $this->assertDirectoryDoesNotExist('vendor/alexskrypnyk/customizer');
 
