@@ -7,9 +7,13 @@ use AlexSkrypnyk\Customizer\CustomizeCommand;
 /**
  * Customizer configuration.
  *
+ * Example configuration for the Customizer command.
+ *
+ * phpcs:disable Drupal.Classes.ClassFileName.NoMatch
+ *
  * @SuppressWarnings(PHPMD.UnusedFormalParameter)
  */
-class Customizer {
+class Customize {
 
   /**
    * A required callback with question definitions.
@@ -117,14 +121,52 @@ class Customizer {
   }
 
   /**
-   * A callback to process cleanup.
+   * A required callback to process all answers.
    *
-   * @param array<string,mixed> $composerjson
-   *   The composer.json file content passed by reference.
+   * This method is called after all questions have been answered and a user
+   * has confirmed the intent to proceed with the customization.
+   *
+   * Note that any manipulation of the composer.json file should be done here
+   * and then written back to the file system.
+   *
+   * @param array<string,string> $answers
+   *   Gathered answers.
    * @param \AlexSkrypnyk\Customizer\CustomizeCommand $c
    *   The Customizer instance.
    */
-  public static function cleanup(array &$composerjson, CustomizeCommand $c): void {
+  public static function process(array $answers, CustomizeCommand $c): void {
+    $c->debug('Updating composer configuration');
+    $json = $c->readComposerJson($c->composerjson);
+    $json['name'] = $answers['Name'];
+    $json['description'] = $answers['Description'];
+    $json['license'] = $answers['License'];
+    $c->writeComposerJson($c->composerjson, $json);
+
+    $c->debug('Removing an arbitrary file.');
+    $files = $c->finder($c->cwd)->files()->name('LICENSE');
+    foreach ($files as $file) {
+      $c->fs->remove($file->getRealPath());
+    }
+  }
+
+  /**
+   * Cleanup after the customization.
+   *
+   * By the time this method is called, all the necessary changes have been made
+   * to the project.
+   *
+   * The Customizer will remove itself from the project and will update the
+   * composer.json as required. This method allows to alter that process as
+   * needed and, if necessary, cancel the original self-cleanup.
+   *
+   * @param \AlexSkrypnyk\Customizer\CustomizeCommand $c
+   *   The CustomizeCommand object.
+   *
+   * @return bool
+   *   Return FALSE to skip the further self-cleanup. Returning TRUE will
+   *   proceed with the self-cleanup.
+   */
+  public static function cleanup(CustomizeCommand $c): void {
     // Here you can remove any sections from the composer.json file that are not
     // needed for the project before all dependencies are updated.
     //
@@ -132,9 +174,10 @@ class Customizer {
     //
     // We are removing the `require-dev` section and the `autoload-dev` section
     // from the composer.json file used for tests.
-    CustomizeCommand::arrayUnsetDeep($composerjson, ['require-dev', 'composer/composer']);
-    CustomizeCommand::arrayUnsetDeep($composerjson, ['require-dev', 'phpunit/phpunit']);
-    CustomizeCommand::arrayUnsetDeep($composerjson, ['autoload-dev', 'psr-4', 'AlexSkrypnyk\\TemplateProjectExample\\Tests\\']);
+    $json = $c->readComposerJson($c->composerjson);
+    unset($json['require-dev']['phpunit/phpunit']);
+    unset($json['autoload-dev']['psr-4']['AlexSkrypnyk\\TemplateProjectExample\\Tests\\']);
+    $c->writeComposerJson($c->composerjson, $json);
 
     $c->fs->remove($c->cwd . '/tests');
   }
@@ -155,7 +198,7 @@ class Customizer {
     return [
       // This is an example of a custom message that overrides the default
       // message with name `welcome`.
-      'title' => 'Welcome to the "{{ package.name }}" project customizer',
+      'title' => 'aWelcome to the "{{ package.name }}" project customizer',
     ];
   }
 
