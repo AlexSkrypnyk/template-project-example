@@ -198,7 +198,7 @@ class Customize {
     return [
       // This is an example of a custom message that overrides the default
       // message with name `welcome`.
-      'title' => 'aWelcome to the "{{ package.name }}" project customizer',
+      'title' => 'Welcome to the "{{ package.name }}" project customizer',
     ];
   }
 
