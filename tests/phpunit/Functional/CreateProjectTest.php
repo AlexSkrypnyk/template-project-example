@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace AlexSkrypnyk\TemplateProjectExample\Tests;
+namespace AlexSkrypnyk\TemplateProjectExample\Tests\phpunit\Functional;
 
+use AlexSkrypnyk\Customizer\CustomizeCommand;
 use AlexSkrypnyk\Customizer\Tests\Functional\CustomizerTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
@@ -13,7 +14,7 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 class CreateProjectTest extends CustomizerTestCase {
 
   #[RunInSeparateProcess]
-  public function testPluginInstall(): void {
+  public function testInstall(): void {
     $this->customizerSetAnswers([
       'testorg/testpackage',
       'Test description',
@@ -22,7 +23,7 @@ class CreateProjectTest extends CustomizerTestCase {
     ]);
     $this->composerCreateProject();
 
-    $this->assertComposerCommandSuccessOutputContains('Welcome to the alexskrypnyk/template-project-example project customizer');
+    $this->assertComposerCommandSuccessOutputContains('Welcome to the "alexskrypnyk/template-project-example" project customizer');
     $this->assertComposerCommandSuccessOutputContains('Project was customized');
 
     $this->assertFileExists('composer.json');
@@ -31,13 +32,14 @@ class CreateProjectTest extends CustomizerTestCase {
     // Plugin will only clean up after itself if there were questions.
     $this->assertDirectoryDoesNotExist('vendor/alexskrypnyk/customizer');
 
-    $json = $this->composerJsonRead('composer.json');
-    $this->assertEquals($json['name'], 'testorg/testpackage');
-    $this->assertEquals($json['description'], 'Test description');
-    $this->assertEquals($json['license'], 'MIT');
+    $json_sut = CustomizeCommand::readComposerJson($this->dirs->sut . DIRECTORY_SEPARATOR . 'composer.json');
+    $this->assertEquals($json_sut['name'], 'testorg/testpackage');
+    $this->assertEquals($json_sut['description'], 'Test description');
+    $this->assertEquals($json_sut['license'], 'MIT');
+    $this->assertFalse(isset($json_sut['require-dev']['alexskrypnyk/customizer']));
+    $this->assertFalse(isset($json_sut['require-dev']['phpunit/phpunit']));
 
-    $this->assertArrayNotHasKey('require-dev', $json);
-    $this->assertArrayNotHasKey('config', $json);
+    $this->assertArrayNotHasKey('config', $json_sut);
     $this->assertFileDoesNotExist($this->customizerFile);
     $this->assertDirectoryDoesNotExist('tests');
 
