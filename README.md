@@ -5,9 +5,9 @@ Example of how [Customizer](https://github.com/AlexSkrypnyk/customizer) can be u
 composer create-project alexskrypnyk/template-project-example my-project
 ```
 
-Example questions and processing are defined in the [`customizer.php`](customizer.php) file.
+Example questions and processing are defined in the [`customize.php`](customize.php) file.
 
-Automated tests for the example questions and processing are defined in the [`tests/CreateProjectTest.php`](tests/CreateProjectTest.php) file.
+Automated tests for the example questions and processing are defined in the [`CreateProjectTest.php`](tests/phpunit/Functional/CreateProjectTest.php) file.
 
 ---
 
@@ -21,7 +21,7 @@ Given template project [`composer.json`](composer.json) before customization:
         "php": ">=8.2"
     },
     "require-dev": {
-        "alexskrypnyk/customizer": "^0.3",
+        "alexskrypnyk/customizer": "^0.4",
         "composer/composer": "^2.7",
         "phpunit/phpunit": "^11.1"
     },
