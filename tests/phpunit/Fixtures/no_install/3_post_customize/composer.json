@@ -1,0 +1,17 @@
+{
+    "name": "testorg/testpackage",
+    "description": "Test description",
+    "type": "project",
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "composer/composer": "^2.7",
+        "phpunit/phpunit": "^11.1"
+    },
+    "prefer-stable": true,
+    "license": "MIT",
+    "extra": {
+        "custom_key": "custom_value"
+    }
+}

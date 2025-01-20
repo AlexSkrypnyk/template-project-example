@@ -10,8 +10,6 @@ use AlexSkrypnyk\Customizer\CustomizeCommand;
  * Example configuration for the Customizer command.
  *
  * phpcs:disable Drupal.Classes.ClassFileName.NoMatch
- *
- * @SuppressWarnings(PHPMD.UnusedFormalParameter)
  */
 class Customize {
 
@@ -42,9 +40,6 @@ class Customize {
    *     be passed to the question callback. The callback receives the following
    *     arguments:
    *     - command: The CustomizeCommand object.
-   *
-   * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-   * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
    */
   public static function questions(CustomizeCommand $c): array {
     // This an example of questions that can be asked to customize the project.
@@ -59,8 +54,7 @@ class Customize {
         // The discover callback function is used to discover the value from the
         // environment. In this case, we use the current directory name
         // and the GITHUB_ORG environment variable to generate the package name.
-        // @phpstan-ignore-next-line
-        'discover' => static function (CustomizeCommand $c): ?string {
+        'discover' => static function (CustomizeCommand $c): string {
           $name = basename((string) getcwd());
           $org = getenv('GITHUB_ORG') ?: 'acme';
 
@@ -110,8 +104,7 @@ class Customize {
   /**
    * A callback to discover the `License` value from the environment.
    *
-   * This is an example callback, and it can be safely removed if this question
-   * is not needed.
+   * This is an example of discovery function as a class method.
    *
    * @param \AlexSkrypnyk\Customizer\CustomizeCommand $c
    *   The Customizer instance.
@@ -136,10 +129,17 @@ class Customize {
    */
   public static function process(array $answers, CustomizeCommand $c): void {
     $c->debug('Updating composer configuration');
+
     $json = $c->readComposerJson($c->composerjson);
+
+    // Update the composer.json file with the answers.
     $json['name'] = $answers['Name'];
     $json['description'] = $answers['Description'];
     $json['license'] = $answers['License'];
+
+    // Remove the autoload-dev psr-4 namespace used to test this package.
+    $c::arrayUnsetDeep($json, ['autoload-dev', 'psr-4', 'AlexSkrypnyk\\TemplateProjectExample\\Tests\\']);
+
     $c->writeComposerJson($c->composerjson, $json);
 
     $c->debug('Removing an arbitrary file.');
@@ -166,20 +166,19 @@ class Customize {
    *   Return FALSE to skip the further self-cleanup. Returning TRUE will
    *   proceed with the self-cleanup.
    */
-  public static function cleanup(CustomizeCommand $c): void {
-    // Here you can remove any sections from the composer.json file that are not
-    // needed for the project before all dependencies are updated.
-    //
-    // You can also additionally process files.
-    //
-    // We are removing the `require-dev` section and the `autoload-dev` section
-    // from the composer.json file used for tests.
-    $json = $c->readComposerJson($c->composerjson);
-    unset($json['require-dev']['phpunit/phpunit']);
-    unset($json['autoload-dev']['psr-4']['AlexSkrypnyk\\TemplateProjectExample\\Tests\\']);
-    $c->writeComposerJson($c->composerjson, $json);
+  public static function cleanup(CustomizeCommand $c): bool {
+    if ($c->isComposerDependenciesInstalled) {
+      $c->debug('Add an example value to composer.json.');
 
-    $c->fs->remove($c->cwd . '/tests');
+      $json = $c->readComposerJson($c->composerjson);
+
+      $json['extra'] = $json['extra'] ?? [];
+      $json['extra']['custom_key'] = 'custom_value';
+
+      $c->writeComposerJson($c->composerjson, $json);
+    }
+
+    return TRUE;
   }
 
   /**
@@ -191,14 +190,12 @@ class Customize {
    * @return array<string,string|array<string>>
    *   An associative array of messages with message name as key and the message
    *   test as a string or an array of strings.
-   *
-   * @SuppressWarnings(PHPMD.UnusedFormalParameter)
    */
   public static function messages(CustomizeCommand $c): array {
     return [
       // This is an example of a custom message that overrides the default
       // message with name `welcome`.
-      'title' => 'Welcome to the "{{ package.name }}" project customizer',
+      'title' => 'Greetings from the customizer for the "{{ package.name }}" project',
     ];
   }
 
