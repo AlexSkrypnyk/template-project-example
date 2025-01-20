@@ -1,0 +1,7 @@
+# Ignore files for distribution archives.
+
+/.gitattributes  export-ignore
+/.github         export-ignore
+/.gitignore      export-ignore
+/phpunit.xml     export-ignore
+/tests           export-ignore

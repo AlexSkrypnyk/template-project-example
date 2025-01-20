@@ -10,7 +10,7 @@
         "composer/composer": "^2.7",
         "phpunit/phpunit": "^11.1"
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload-dev": {
         "psr-4": {
